@@ -1,10 +1,13 @@
-import uuid
 import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
+import cloudinary
+import cloudinary.uploader
+from dotenv import load_dotenv
+
+load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,6 +24,13 @@ app.config.update(
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     SQLALCHEMY_DATABASE_URI=raw_db_url,
     DEBUG=os.environ.get('FLASK_DEBUG', 'False') == 'True'
+)
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
 )
 
 db = SQLAlchemy(app)
@@ -62,7 +72,7 @@ class LostItem(db.Model):
     pickup_time = db.Column(db.String(255), nullable=False)
     location = db.Column(db.String(255), nullable=False)
     status = db.Column(db.String(255), nullable=False, default='pending')
-    image_filename = db.Column(db.String(255), nullable=False)
+    image_filename = db.Column(db.String(500), nullable=False)
 
     def __repr__(self):
         return f"<LostItem id={self.id} name='{self.name}' status='{self.status}'>"
@@ -252,40 +262,40 @@ def administrator_logout():
     flash('您已成功退出登录！')
     return render_template('index.html')
 
-@app.route('/administrator_upload_items',methods=['GET','POST'])
+# 工作者上传图片并保存到 Cloudinary
+def upload_image_to_cloudinary(file):
+    try:
+        result = cloudinary.uploader.upload(file, folder="lost_items")
+        return result.get('secure_url')
+    except Exception as e:
+        print(f"Cloudinary upload failed: {str(e)}")
+        return None
+
+# 替换 administrator_upload_items 中的图片处理逻辑
+@app.route('/administrator_upload_items', methods=['GET', 'POST'])
 def administrator_upload_items():
-    if request.method=='POST':
+    if request.method == 'POST':
         item_name = request.form.get('item_name')
         description = request.form.get('description')
         pickup_time = request.form.get('pickup_time')
         location = request.form.get('location')
         image_file = request.files.get('image')
 
-        if not all([item_name, description, pickup_time, location,image_file]):
+        if not all([item_name, description, pickup_time, location, image_file]):
             flash('请填写完整所有信息并上传图片')
             return redirect(url_for('administrator_upload_items'))
-        # 保存图片文件
-        original_filename = secure_filename(image_file.filename)
-        # 拿到文件扩展名
-        ext = os.path.splitext(original_filename)[1]
-        # 生成唯一文件名:uuid4+原始文件扩展名
-        unique_filename = f"{uuid.uuid4().hex}{ext}"
-        upload_folder = app.config['UPLOAD_FOLDER']  # static/lost_items
-        image_path = os.path.join(upload_folder, unique_filename)
-        try:
-            image_file.save(image_path)
-        except Exception as e:
-            flash(f'图片上传失败: {str(e)}')
-            return redirect(url_for('administrator_upload_items'))
-        image_db_filename = unique_filename
 
-        # 保存信息到数据库
+        image_url = upload_image_to_cloudinary(image_file)
+        if not image_url:
+            flash('图片上传失败，请稍后重试')
+            return redirect(url_for('administrator_upload_items'))
+
         new_item = LostItem(
             name=item_name,
             description=description,
             pickup_time=pickup_time,
-            location = location,
-            image_filename=image_db_filename
+            location=location,
+            image_filename=image_url  # 保存 URL
         )
         db.session.add(new_item)
         db.session.commit()
@@ -293,7 +303,6 @@ def administrator_upload_items():
         flash('失物信息上传成功')
         return redirect(url_for('administrator_dashboard'))
 
-    # GET 请求显示表单
     return render_template('administrator_upload_items.html')
 
 @app.route('/administrator_view_claims')
@@ -388,4 +397,6 @@ def administrator_review_claim_items(claim_id):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # 默认5000，Render会注入PORT环境变量
     app.run(host='0.0.0.0', port=port, debug=True)
+
+
 
