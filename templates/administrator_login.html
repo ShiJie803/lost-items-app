@@ -1,0 +1,128 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>工作人员登录</title>
+</head>
+<body>
+    <header>
+        <h1>工作人员您好！欢迎来到本校学生失物管理系统登录页面！</h1>
+        <p>请输入您的邮箱和密码进行登录</p>
+    </header>
+    <form class="com" method="POST" action="{{ url_for('administrator_login') }}">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                    <p style="color:red">{{message}}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}    
+        <div class="bu">
+            <label>您的邮箱：</label>
+            <input type="email" name="email" autocomplete="username" required placeholder="请输入邮箱" title="请先输入邮箱!">
+        </div>
+        <div class="bu">
+            <label>输入密码：</label>
+            <input type="password" name="password" autocomplete="current-password" required placeholder="请输入密码" title="请先输入密码!">
+        </div>
+        <div class="button-container">
+            <button class="submit-bu" type="submit">登录</button>
+        </div>
+    </form>
+    <footer>
+        <p>本校学生失物认领系统 | 有任何改进建议请发送至邮箱：zhou39506@gmail.com</p>
+    </footer>
+</body>
+<style>
+    .button-container{
+        text-align: center;
+    }
+    .flash-messages{
+        margin-bottom: 20px;
+        padding:10px;
+        background-color: #ffff;
+        border-radius: 10px;
+        border:1px solid red;
+    }
+    .flash-message p{
+        margin: auto;
+        font-weight: bold;
+    }
+    header h1{
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    header p{
+        font-size: 20px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+    body{
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        color:#333;
+        background:linear-gradient(to right,#c7e1e3, #d3afbb);    
+        margin:0;
+        padding: 40px 20px;
+    }
+    .com{
+        max-width: 600px;
+        margin: auto;
+        background-color: #fff;
+        padding: 70px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(149,157,165,0.2);
+    }
+    label{
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    input{
+        width: 100%;
+        font-size: 15px;
+        border-radius: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    input:focus{
+        outline: none;
+        box-shadow: 0 0 5px rgba(0,217,255,0.5);
+        border-color: #00d9ff;
+        transition: box-shadow 0.2s ease;
+    }
+    .bu{
+        text-align: left;
+        margin-bottom: 20px;
+    }
+    .submit-bu{
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        border:none;
+        padding: 12px 20px;
+        font-size: 15px;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .submit-bu:hover {
+    background-color: #0056b3;
+    }
+    footer {
+        margin-top: 40px;
+        padding-top: 20px;
+        font-size: 14px;
+        color: #666;
+        border-top: 1px solid #ccc;
+    }
+
+    @media screen and (max-width: 768px) {
+        .com {
+            padding: 40px 20px;
+        }
+    }
+
+</style>
+</html>

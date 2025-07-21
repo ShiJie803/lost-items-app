@@ -1,0 +1,186 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>查询具体失物信息和进行审核</title>
+</head>
+<body>
+    <header>
+        <h1>工作人员您好！欢迎进入本校学生失物管理系统！</h1>
+        <p>您可在此查阅具体的失物信息和进行审核</p>
+    </header>
+    <section class="items_display">
+            <div class="item-card">
+                <div class="item-info">
+                    <p class="detail-name">失物名称：{{ item.name }}</p>
+                    <p class="detail-description">详细描述：{{ item.description }}</p>
+                    <p class="detail-time">拾取时间：{{ item.pickup_time }}</p>
+                    <p class="detail-location">认领地点：{{ item.location }}</p>
+                    <a href="{{ url_for('administrator_view_items') }}" class="back-button">点击此处返回</a>
+                    {% if claim %}
+                        <a href="{{ url_for('administrator_review_claim_items',claim_id=claim.id)}}" class="claim-button">审核认领申请</a>
+                    {% else %}
+                        <span style="font-weight: bold;color:crimson;font-family: 'Segoe UI', sans-serif;">暂无认领申请</span>
+                    {% endif %}
+                </div>
+                <div class="detail-image-container">
+                    <img class="detail-image" src="{{url_for('static',filename='lost_items/'+item.image_filename)}}" />
+                </div>
+            </div>
+    </section>
+     <form method="POST" action="{{url_for('delete_item',item_id = item.id)}}" class="delete-button">
+        <button type="submit" class="delete-bu" onclick="return confirm('您确定要删除此失物吗？')">点击删除此失物</button>
+    </form>
+    <footer>
+        <p>本校学生失物认领系统 | 有任何改进建议请发送至邮箱：zhou39506@gmail.com</p>
+    </footer>
+</body>
+
+<style>
+    .delete-bu{
+        cursor: pointer;
+        border: none;
+        border-radius: 20px;
+        color:white;
+        background-color: #00d9ff;
+        font-weight: bold;
+        padding: 10px 20px;
+    }
+    .delete-bu:hover{
+        background-color: #ff0000;
+    }
+    .claim-button {
+        text-decoration: none;
+        background-color: #00d9ff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    .claim-button:hover {
+        background-color: #0056b3;
+    }
+    .back-button{
+        text-decoration: none;
+        background-color: #00d9ff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+    .back-button:hover {
+        background-color: #0056b3;
+    }     
+    .item-card {
+        width: 820px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(149, 157, 165, 0.2);
+        text-align: left;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .item-info{
+        width: 60%;
+    }
+    .detail-image-container{
+        text-align: center;
+        width: 35%;
+    }
+    .detail-image {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        display: block;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        margin: 0 auto 20px auto;
+    }
+
+    .detail-name {
+        font-size: 18px;
+        color:#777;
+        margin-bottom: 10px;
+    }
+
+    .detail-description {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #777;
+    }
+
+    .detail-time {
+        font-size: 18px;
+        color: #777;
+        margin-bottom: 15px;
+    }
+    .detail-location {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #777;
+    }
+    .item-link {
+        text-decoration: none;
+        background-color: #00d9ff;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+    }
+
+    .item-link:hover {
+        background-color: #0056b3;
+    }        
+    header h1 {
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    header p {
+        font-size: 20px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+    footer {
+        margin-top: 60px;
+        padding-top: 20px;
+        font-size: 14px;
+        color: #666;
+        border-top: 1px solid #ccc;
+    }
+
+    body {
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        color: #333;
+        background: linear-gradient(to right, #c7e1e3, #d3afbb);
+        margin: 0;
+        padding: 40px 20px;
+    }
+    .items_display{
+        display: flex;
+        margin-top: 60px;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+/*在小屏幕或手机上，左右排列会压缩内容，可增加媒体查询让其在小屏幕上自动变为纵向堆叠*/
+@media screen and (max-width: 768px) {
+    .item-card {
+        flex-direction: column;
+    }
+
+    .item-info, .detail-image-container {
+        width: 100%;
+    }
+
+    .detail-image {
+        max-width: 100%;
+    }
+}    
+</style>
+
+</html>

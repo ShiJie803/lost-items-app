@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <title>查看所有失物</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+       <h1>工作人员您好！欢迎来到本校学生失物管理系统！</h1>
+       <p>您可在此处管理所有失物信息，<a href="{{url_for('administrator_dashboard')}}" class="back-button">也可点击此处返回工作菜单</a></p>
+    </header>
+    <!-- 搜索框部分 -->
+    <form class="div" method="GET" action="{{ url_for('administrator_view_items') }}">
+        <input type="text" placeholder="输入失物关键词" class="input" name="keyword">
+        <button class="submit-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </form>
+    <section class="items_display">
+        {% for item in items %}
+            <div class="item-card">
+                <img src="{{url_for('static',filename='lost_items/'+item.image_filename)}}" class="item-image">
+                <!-- 提取 item_id：文件名要是 item_3.jpg -->
+                <a href="{{url_for('administrator_items_detail',item_id=item.id)}}" class="item-link">点击查看详情</a>
+            </div>
+        {% endfor %}
+    </section>
+    
+    <!-- 分页部分 -->
+    <div class="pagination">
+        {% if currentpage > 1 %}
+            <a href="{{ url_for('administrator_view_items',page=currentpage-1,keyword=request.args.get('keyword', ''))}}" class = "page-button" >上一页</a>
+        {% endif %}
+            <span class="page-info">第{{currentpage}}页 / 共{{total_pages}}页</span>
+        {% if currentpage < total_pages %}
+            <a href="{{ url_for('administrator_view_items',page=currentpage+1,keyword=request.args.get('keyword', ''))}}" class = "page-button" >下一页</a>
+        {% endif %}    
+    </div>
+    <footer>
+        <p>本校学生失物认领系统 | 有任何改进建议请发送至邮箱：zhou39506@gmail.com</p>
+    </footer>    
+</body>
+<style>
+    .back-button{
+        display: inline-flex;
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        font-size: 18px;
+        text-decoration: none;
+        padding: 5px 10px;
+    }
+    .back-button:hover{
+        background-color: rgb(105, 105, 250);
+    }        
+    .item-card {
+        display: block;
+        justify-content: center;
+        max-width: 280px;
+        width: 100%;
+        margin: 20px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(149, 157, 165, 0.2);
+        text-align: center;
+    }
+
+    .item-image {
+        width: 100%;
+        width: 280px;
+        height: 200px;
+        display: block;
+        justify-content: center;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+
+    .item-name {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .item-description {
+        font-size: 14px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+
+    .item-date {
+        font-size: 12px;
+        color: #777;
+        margin-bottom: 15px;
+    }
+
+    .item-link {
+        text-decoration: none;
+        background-color: #00d9ff;
+        color: white;
+        width: 280px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .item-link:hover {
+        background-color: #0056b3;
+    }        
+    .pagination{
+        max-width: 840px;
+        padding: 10px;
+        background-color: #00d9ff;
+        color: white;
+        margin:auto;
+        font-size: 15px;
+        border: none;
+        border-radius: 30px;
+    }
+    .page-button{
+        display: inline;
+        background-color: #00d9ff;
+        color: white;
+        border-radius: 20px;
+        border: none;
+        padding: 12px 20px;
+        font-size: 20px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .page-button:hover{
+        background-color: #0056b3;
+    }
+    .page-info{
+        font-size: 20px;
+        line-height: 32px;
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+    header h1 {
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    header p {
+        font-size: 20px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+    footer {
+        margin-top: 40px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    body {
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        color: #333;
+        background: linear-gradient(to right, #c7e1e3, #d3afbb);
+        margin: 0;
+        padding: 40px 20px;
+    }
+
+    .div {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .input {
+        padding-left: 20px;
+        border: 1px solid #dfe1e5;
+        outline: none;
+        width: 50%;
+        height: 45px;
+        border-radius: 20px 0 0 20px;
+    }
+    input:focus{
+        outline: none;
+        box-shadow: 0 0 5px rgba(0,217,255,0.5);
+        border-color: #00d9ff;
+        transition: box-shadow 0.2s ease;
+    }
+    .submit-search {
+        background-color: #00d9ff;
+        color: white;
+        width: 100px;
+        border-radius: 0 20px 20px 0;
+        border: none;
+        padding: 12px 20px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    .submit-search:hover {
+        background-color: #0056b3;
+    }
+    .items_display{
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        margin-top: 20px;
+        justify-content: center;
+        gap:30px;
+        max-width: 400px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    @media screen and ( max-width:768px){
+        .items_display{
+        grid-template-columns:1fr;
+        }
+    }
+</style>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh"> 
+<head>
+    <meta charset="UTF-8" />
+    <title> 审核任务列表</title>
+</head>
+<body>
+    <header>
+        <h1>工作人员您好！欢迎来到本校学生失物管理系统！</h1>
+        <p>点击“去审核”去处理已提交的认领申请，<a href="{{url_for('administrator_dashboard')}}" class="back-button">点击此处返回工作菜单</a></p>
+
+    </header>
+    {% if claims %}
+        <div class="claim-list">
+            {% for claim in claims %}
+                <div class="claim-card">
+                    <p><strong>失物名称：</strong>{{claim.item_name}}</p>
+                    <p><strong>学生姓名：</strong>{{ claim.student_name }}</p>
+                    <p><strong>学生学号：</strong>{{ claim.student_id }}</p>
+                    <p><strong>认领状态：</strong>
+                        {% if claim.status == 'approved' %}
+                            <span class="status approved">已认领</span>
+                        {% elif claim.status == 'pending' %}
+                            <span class="status pending">待审核</span>
+                        {% else %}
+                            <span class="status rejected">未通过</span>
+                        {% endif %}    
+                    </p>
+                    {% if claim.status == 'pending' %}
+                        <a href="{{ url_for('administrator_review_claim_items',claim_id=claim.id) }}" class="review-button">去审核</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <span style="font-weight: bold;color: crimson;font-family: 'Segoe UI', sans-serif;">暂时没有认领申请</span>
+    {% endif %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-message">
+            {% for message in messages %}
+                <p style="color:red;">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}    
+    <footer>
+        <p>本校学生失物认领系统 | 有任何改进建议请发送至邮箱：zhou39506@gmail.com</p>
+    </footer>
+</body>
+<style>
+    .back-button{
+        display: inline-flex;
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        font-size: 18px;
+        text-decoration: none;
+        padding: 5px 10px;
+    }
+    .back-button:hover{
+        background-color: rgb(105, 105, 250);
+    }     
+    .flash-message {
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: #ffe6e6;
+        border: 1px solid red;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .flash-message p {
+        color: red;
+        margin: 0;
+        font-weight: bold;
+    } 
+    .claim-list {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .claim-card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .review-button {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 14px;
+        background-color: #00bcd4;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .review-button:hover {
+        background-color: #0097a7;
+    }
+
+    .status {
+        font-weight: bold;
+    }
+
+    .status.approved {
+        color: blue;
+    }
+
+    .status.rejected {
+        color: red;
+    }
+
+    .status.pending {
+        color: orange;
+    }
+    header h1{
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    header p{
+        font-size: 20px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+    body{
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        color:#333;
+        background:linear-gradient(to right,#c7e1e3, #d3afbb);    
+        margin:0;
+        padding: 40px 20px;
+    }
+    footer{
+        margin-top: 40px;
+        font-size: 14px;
+        color:#666;
+    }
+</style>
+</html>

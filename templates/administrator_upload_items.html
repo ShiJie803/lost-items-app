@@ -1,0 +1,170 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>失物信息上传</title>
+</head>
+<body>
+    <header>
+        <h1>工作人员您好！欢迎来到本校学生失物管理系统！</h1>
+        <p>请上传失物的相关信息</p>
+    </header>
+    <form class="com" method="POST" enctype="multipart/form-data">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash-message">
+                {% for message in messages %}
+                    <p style="color:red;">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        <div class="bu">
+            <label for="item_name">失物名称：</label>
+            <input id="item_name" type="text" name="item_name" required>
+        </div>
+        <div class="bu">
+            <label for="item-description">失物描述：</label>
+            <textarea id="item-description" type="text" name="description" required></textarea>
+        </div>
+        <div class="bu">
+            <label for="item-date">拾取时间：</label>
+            <input id="item-date" type="text" name="pickup_time" required>
+        </div>
+        <div class="bu">
+            <label for="location">认领地点：</label>
+            <input id="location" type="text" name="location" required>
+        </div>
+        <div class="bu">
+            <label>失物图片：</label>
+            <label for="image_upload" class="custom-file-upload"> 选择文件 </label>
+            <input id="image_upload" type="file" name="image" accept="image/*" required hidden>
+            <span id="filename">未选择任何文件</span>
+        </div>        
+        <button class="submit-bu" type="submit">点击提交</button>
+        <a href="{{ url_for('administrator_dashboard')}}" class="submit-href">点击返回</a>
+    </form>
+    <footer>
+        <p>本校学生失物认领系统 | 有任何改进建议请发送至邮箱：zhou39506@gmail.com</p>
+    </footer>
+</body>
+
+<script>
+    document.getElementById('image_upload').addEventListener('change', function() {
+    const fileName = this.files.length > 0 ? this.files[0].name : "未选择文件";
+    document.getElementById('filename').textContent = "已选择文件：" + fileName;
+});
+</script>
+
+<style>
+    .flash-message {
+        margin: 20px auto;
+        max-width: 800px;
+        background-color: #ffe6e6;
+        border: 1px solid red;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .flash-message p {
+        color: red;
+        margin: 0;
+        font-weight: bold;
+    }    
+    .custom-file-upload{
+        display: inline-block;
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+        margin-right: 10px;
+        transition: background-color 0.2s ease;
+    }
+    .custom-file-upload:hover{
+        background-color: #00bf13e3;
+    }
+    #filename{
+        font-size: 15px;
+        color: #555;
+    }
+    header h1{
+        font-size: 30px;
+        margin-bottom: 20px;
+    }
+    header p{
+        font-size: 20px;
+        margin-bottom: 40px;
+        line-height: 1.5;
+    }
+    body{
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+        color:#333;
+        background:linear-gradient(to right,#c7e1e3, #d3afbb);    
+        margin:0;
+        padding: 40px 20px;
+    }
+    .com{
+        max-width: 600px;
+        margin: auto;
+        background-color: #fff;
+        padding: 70px;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(149,157,165,0.2);
+    }
+    label{
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    input,textarea{
+        width: 100%;
+        font-size: 15px;
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+    input,textarea:focus{
+        outline: none;
+        border-color: #00d9ff;
+        box-shadow: 0 0 5px rgba(0,217,255,0.5);
+        transition: box-shadow 0.2s ease;
+    }
+    .bu{
+        text-align: left;
+        margin-bottom: 20px;
+    }
+    .submit-bu{
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        border:none;
+        padding: 12px 20px;
+        font-size: 15px;
+        margin-top: 15px;
+        cursor: pointer;
+    }
+    .submit-bu:hover {
+    background-color: #f22020;
+    }
+    .submit-href{
+        background-color: #00d9ff;
+        color:white;
+        border-radius: 20px;
+        border:none;
+        padding: 13px 20px;
+        font-size: 15px;
+        margin-top: 15px;
+        text-decoration: none;
+    }
+    .submit-href:hover {
+        background-color: #0056b3;
+    }
+    footer{
+        margin-top: 40px;
+        font-size: 14px;
+        color:#666;
+    }
+</style>
+</html>
