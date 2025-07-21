@@ -1,5 +1,5 @@
 from enum import unique
-from IPython.utils.tz import utcnow
+from datetime import datetime, timezone
 import uuid  # 引入唯一 ID 模块
 from math import ceil
 from datasets.config import SQLALCHEMY_AVAILABLE
@@ -69,11 +69,11 @@ class Claim(db.Model):
     student_id = db.Column(db.String(255),db.ForeignKey('student.student_id'),nullable=False)
     item_id = db.Column(db.Integer,db.ForeignKey('item.id'),nullable=False)
     phone = db.Column(db.String(255),nullable=False)
-    claim_time = db.Column(db.DateTime,default=datetime.utcnow)
+    claim_time = db.Column(db.DateTime,default=datetime.now(timezone.utc))
     status = db.Column(db.String(20),default='pending')
     reason = db.Column(db.String(255))
     # 添加时间戳字段
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     # 设置关系，方便 ORM 使用
     student = db.relationship(Student,backref='claims')
     item = db.relationship(LostItem, backref='claims')
