@@ -386,5 +386,6 @@ def administrator_review_claim_items(claim_id):
     return render_template('administrator_review_claim_items.html',claim=claim,item=item)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # 默认5000，Render会注入PORT环境变量
+    app.run(host='0.0.0.0', port=port, debug=True)
 
