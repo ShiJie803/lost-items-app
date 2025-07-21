@@ -18,7 +18,7 @@
     <section class="items_display">
         {% for item in items %}
             <div class="item-card">
-                <img src="{{url_for('static',filename='lost_items/'+item.image_filename)}}" class="item-image">
+                <img src="{{ item.image_filename }}" class="item-image">
                 <!-- 提取 item_id：文件名要是 item_3.jpg -->
                 <a href="{{url_for('administrator_items_detail',item_id=item.id)}}" class="item-link">点击查看详情</a>
             </div>
