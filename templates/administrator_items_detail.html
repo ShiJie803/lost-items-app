@@ -24,7 +24,7 @@
                     {% endif %}
                 </div>
                 <div class="detail-image-container">
-                    <img class="detail-image" src="{{url_for('static',filename='lost_items/'+item.image_filename)}}" />
+                    <img class="detail-image" src="{{ item.image_filename }}" />
                 </div>
             </div>
     </section>
