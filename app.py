@@ -1,18 +1,11 @@
-from enum import unique
-from datetime import datetime, timezone
 import uuid  # 引入唯一 ID 模块
-from math import ceil
 from flask import Flask , render_template , request , redirect , url_for , session , flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime , timedelta , timezone
+from datetime import datetime, timezone
 
-from pygments.lexer import default
-from scripts.regsetup import description
-from sqlalchemy.orm import joinedload, backref
-from sqlalchemy import func
 from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.utils import secure_filename
-import os , json
+import os
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER']=os.path.join('static','lost_items') # 把上传的文件保存在 static/lost_items 这个文件夹下。
@@ -90,9 +83,7 @@ def index():
 @app.route('/student_login',methods=['GET','POST'])
 def student_login():
     if request.method=='POST':
-        name = request.form.get('name').strip()
         student_id = request.form.get('student_id')
-        email = request.form.get('email')
         password = request.form.get('password')
 
         student = Student.query.filter_by(student_id=student_id).first()
@@ -144,7 +135,6 @@ def student_register():
 @app.route('/student_alterpassword',methods=['GET','POST'])
 def student_alterpassword():
     if request.method=='POST':
-        email = request.form.get('email').strip()
         student_id = request.form.get('student_id').strip()
         new_password = request.form.get('new_password').strip()
         confirm_password = request.form.get('confirm_password').strip()
