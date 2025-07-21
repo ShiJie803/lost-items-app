@@ -1,92 +1,86 @@
-import uuid
-import os
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+import uuid  # 引入唯一 ID 模块
+from flask import Flask , render_template , request , redirect , url_for , session , flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone
-from werkzeug.security import generate_password_hash, check_password_hash
+
+from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.utils import secure_filename
+import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_key')
-
-# Get and fix DATABASE_URL for PostgreSQL on Render
-raw_db_url = os.environ.get('DATABASE_URL')
-if raw_db_url and raw_db_url.startswith('postgres://'):
-    raw_db_url = raw_db_url.replace('postgres://', 'postgresql://', 1)
-
+app.secret_key = os.environ.get('SECRET_KEY' , 'dev_key')
 app.config.update(
     UPLOAD_FOLDER=os.path.join(basedir, 'static', 'lost_items'),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SQLALCHEMY_DATABASE_URI=raw_db_url,
+    SQLALCHEMY_DATABASE_URI=os.environ.get(
+        'DATABASE_URL',
+        'mysql+pymysql://root:Zsj?20040803@127.0.0.1/ZhouShiJie_db'
+    ),
     DEBUG=os.environ.get('FLASK_DEBUG', 'False') == 'True'
 )
-
 db = SQLAlchemy(app)
 
-# ==================== Models ====================
+# 模型定义
 class Student(db.Model):
-    __tablename__ = 'student'
-    student_id = db.Column(db.String(20), primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), nullable=False)
-    phone = db.Column(db.String(20), nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-
-    def set_password(self, password):
+    __tablename__ = 'student' # 指定表名
+    student_id = db.Column(db.String(20),primary_key=True)
+    name = db.Column(db.String(255),nullable = False)
+    email = db.Column(db.String(255),nullable = False)
+    phone = db.Column(db.String(20),nullable = False)
+    password_hash = db.Column(db.String(255),nullable = False)
+    def set_password(self,password):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
+    def check_password(self,password):
+        return check_password_hash(self.password_hash,password)
 
 class Administrator(db.Model):
     __tablename__ = 'administrator'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    password_hash = db.Column(db.String(255), nullable=False)
-
-    def set_password(self, password):
+    id = db.Column(db.Integer, primary_key=True)  # 添加主键字段
+    email = db.Column(db.String(255),nullable = False,unique = True)
+    password_hash = db.Column(db.String(255),nullable = False)
+    def set_password(self,password):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
+    def check_password(self,password):
+        return check_password_hash(self.password_hash,password)
 
 class LostItem(db.Model):
     __tablename__ = 'item'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=False)
+    id = db.Column(db.Integer , primary_key=True)
+    name = db.Column(db.String(255) , nullable=False)
+    description = db.Column(db.Text , nullable=False)
     pickup_time = db.Column(db.String(255), nullable=False)
-    location = db.Column(db.String(255), nullable=False)
-    status = db.Column(db.String(255), nullable=False, default='pending')
-    image_filename = db.Column(db.String(255), nullable=False)
+    location = db.Column(db.String(255) , nullable=False)
+    status = db.Column(db.String(255) , nullable=False , default = 'pending')
+    image_filename = db.Column(db.String(255) , nullable=False)
 
     def __repr__(self):
         return f"<LostItem id={self.id} name='{self.name}' status='{self.status}'>"
 
-
 class Claim(db.Model):
     __tablename__ = 'claim'
-    id = db.Column(db.Integer, primary_key=True)
-    student_name = db.Column(db.String(255), nullable=False)
-    student_id = db.Column(db.String(255), db.ForeignKey('student.student_id'), nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
-    phone = db.Column(db.String(255), nullable=False)
-    claim_time = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    status = db.Column(db.String(20), default='pending')
+    id = db.Column(db.Integer, primary_key=True)  # 主键
+    student_name = db.Column(db.String(255),nullable=False)
+    student_id = db.Column(db.String(255),db.ForeignKey('student.student_id'),nullable=False)
+    item_id = db.Column(db.Integer,db.ForeignKey('item.id'),nullable=False)
+    phone = db.Column(db.String(255),nullable=False)
+    claim_time = db.Column(db.DateTime,default=datetime.now(timezone.utc))
+    status = db.Column(db.String(20),default='pending')
     reason = db.Column(db.String(255))
+    # 添加时间戳字段
     timestamp = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-
-    student = db.relationship(Student, backref='claims')
+    # 设置关系，方便 ORM 使用
+    student = db.relationship(Student,backref='claims')
     item = db.relationship(LostItem, backref='claims')
 
-
-# ==================== DB Init ====================
+# 初始化数据库
 with app.app_context():
     db.create_all()
+
 
 # -----------------------------学生视图---------------------------------
 @app.route('/')
@@ -385,6 +379,8 @@ def administrator_review_claim_items(claim_id):
     # GET 请求时渲染表单页面
     return render_template('administrator_review_claim_items.html',claim=claim,item=item)
 
-if __name__ == '__main__':
+if __name__=='__main__':
     app.run(debug=True)
+
+
 
