@@ -268,7 +268,7 @@ def upload_image_to_cloudinary(file):
         result = cloudinary.uploader.upload(file, folder="lost_items")
         return result.get('secure_url')
     except Exception as e:
-        print(f"Cloudinary upload failed: {str(e)}")
+        app.logger.error(f"Cloudinary upload failed: {str(e)}")
         return None
 
 # 替换 administrator_upload_items 中的图片处理逻辑
